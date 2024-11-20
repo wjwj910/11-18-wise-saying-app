@@ -1,5 +1,7 @@
 package com.ll;
 
+import com.llwiseSaying.WiseSaying;
+
 import java.io.*;
 import java.util.Scanner;
 
@@ -188,14 +190,4 @@ class App {
     }
 }
 
-class WiseSaying {
-    int id;
-    String content;
-    String author;
 
-    public WiseSaying(int id, String content, String author) {
-        this.id = id;
-        this.content = content;
-        this.author = author;
-    }
-}
