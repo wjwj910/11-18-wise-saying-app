@@ -9,95 +9,92 @@ public class Main {
     }
 }
 
-class Quote{
-    int id;
-    String wise;
-    String author;
-
-    Quote(int id, String wise, String author) {
-        this.id = id;
-        this.wise = wise;
-        this.author = author;
-    }
-}
-
-class App{
-    private Quote[] quotes = new Quote[100];
-    private int count = 0;
-
-    public void run(){
+class App {
+    public void run() {
         System.out.println("== 명언 앱 ==");
+
         Scanner scanner = new Scanner(System.in);
 
-        while (true){
+        int lastId = 0;
+
+        WiseSaying[] wiseSayings = new WiseSaying[100];
+
+        while (true) {
             System.out.print("명령) ");
             String cmd = scanner.nextLine();
-            if(cmd.equals("종료")){
+
+            if (cmd.equals("종료")) {
                 break;
-            }
-
-            else if (cmd.equals("등록")) {
+            } else if (cmd.equals("등록")) {
                 System.out.print("명언 : ");
-                String wise = scanner.nextLine();
-
+                String content = scanner.nextLine();
                 System.out.print("작가 : ");
                 String author = scanner.nextLine();
+                int id = ++lastId;
 
-                quotes[count] = new Quote(count + 1, wise, author);
+                WiseSaying wiseSaying = new WiseSaying(id, content, author);
 
-                System.out.println((count + 1) + "번 명언이 등록되었습니다.");
-                count++;
-            }
 
-            else if (cmd.equals("목록")) {
+                wiseSaying.id = id;
+                wiseSaying.content = content;
+                wiseSaying.author = author;
+
+                wiseSayings[id] = new WiseSaying(lastId, content, author);
+
+                System.out.println("%d번 명언이 등록되었습니다.".formatted(id));
+
+            } else if (cmd.equals("목록")){
                 System.out.println("번호 / 작가 / 명언");
                 System.out.println("----------------------");
-                for (int i = count - 1; i >= 0; i--) {
-                    Quote quote = quotes[i];
-                    if(quote != null){
-                        System.out.println(quote.id + " / " + quote.author + " / " + quote.wise);
+                for(int i = lastId; i >= 0;i--){
+                    WiseSaying wiseSaying = wiseSayings[i];
+                    if(wiseSaying != null){
+                        System.out.println(wiseSaying.id + " / " + wiseSaying.author + " / " + wiseSaying.content);
                     }
                 }
-            }
-
-            else if (cmd.startsWith("삭제?id=")) {
+            } else if (cmd.startsWith("삭제?id=")) {
                 String idStr = cmd.substring(6);
                 int id = Integer.parseInt(idStr);
 
-                if (id > 0 && id <= count && quotes[id - 1] != null) {
-                    quotes[id - 1] = null;
+                if(id > 0 && id <= lastId && wiseSayings[id] != null) {
+                    wiseSayings[id] = null;
                     System.out.println(id + "번 명언이 삭제되었습니다.");
                 } else {
                     System.out.println(id + "번 명언은 존재하지 않습니다.");
                 }
-            }
-
-            else if(cmd.startsWith("수정?id=")){
+            } else if(cmd.startsWith("수정?id=")) {
                 String idStr = cmd.substring(6);
                 int id = Integer.parseInt(idStr);
 
-                if(id > 0 && id <= count && quotes[id - 1] != null) {
-                    Quote quoteToEdit = quotes[id - 1];
-                    System.out.println("명언(기존) : " + quoteToEdit.wise);
-                    System.out.print("명언 : ");
-                    String newWise = scanner.nextLine();
+                if(id > 0 && id <= lastId && wiseSayings[id] != null) {
+                    System.out.println("명언(기존) : " + wiseSayings[id].content);
+                    System.out.print("명령) ");
+                    String newContent = scanner.nextLine();
 
-                    System.out.println("작가(기존) : " + quoteToEdit.author);
-                    System.out.print("작가 : ");
+                    System.out.println("작가(기존) : " + wiseSayings[id].author);
+                    System.out.print("명령) ");
                     String newAuthor = scanner.nextLine();
 
-                    quoteToEdit.wise = newWise;
-                    quoteToEdit.author = newAuthor;
-                } else{
+                    wiseSayings[id].content = newContent;
+                    wiseSayings[id].author = newAuthor;
+                } else {
                     System.out.println(id + "번 명언은 존재하지 않습니다.");
                 }
             }
-
-            else{
-                System.out.println("올바른 명령이 아닙니다. 다시 입력하세요.");
-            }
         }
+
         scanner.close();
     }
+}
 
+class WiseSaying {
+    int id;
+    String content;
+    String author;
+
+    public WiseSaying(int id, String content, String author){
+        this.id = id;
+        this.content = content;
+        this.author = author;
+    }
 }
