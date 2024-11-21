@@ -3,6 +3,8 @@ package com.ll;
 import com.llwiseSaying.WiseSaying;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
@@ -17,10 +19,10 @@ class App {
     private static final String DIRECTORY = "src/main/java/com/ll/db/wiseSaying/";
     private static final String DATA_FILE = "src/main/java/com/ll/db/wiseSaying/data.json";
     private int lastId;
-    private WiseSaying[] wiseSayings;
+    private List<WiseSaying> wiseSayings;
 
     public App() {
-        wiseSayings = new WiseSaying[100];
+        wiseSayings = new ArrayList<>();
         loadLastId();
         loadWiseSayings();
     }
@@ -44,7 +46,7 @@ class App {
                 int id = ++lastId;
 
                 WiseSaying wiseSaying = new WiseSaying(id, content, author);
-                wiseSayings[id] = wiseSaying;
+                wiseSayings.add(wiseSaying);
 
                 saveWiseSaying(wiseSaying);
                 saveLastId(lastId);
@@ -54,8 +56,7 @@ class App {
             } else if (cmd.equals("목록")) {
                 System.out.println("번호 / 작가 / 명언");
                 System.out.println("----------------------");
-                for (int i = 1; i <= lastId; i++) {
-                    WiseSaying wiseSaying = wiseSayings[i];
+                for (WiseSaying wiseSaying : wiseSayings) {
                     if (wiseSaying != null) {
                         System.out.println(wiseSaying.id + " / " + wiseSaying.author + " / " + wiseSaying.content);
                     }
@@ -64,8 +65,8 @@ class App {
                 String idStr = cmd.substring(6);
                 int id = Integer.parseInt(idStr);
 
-                if (id > 0 && id <= lastId && wiseSayings[id] != null) {
-                    wiseSayings[id] = null;
+                if (id > 0 && id <= lastId && wiseSayings.size() >= id) {
+                    wiseSayings.set(id - 1, null); // 인덱스가 0부터 시작하므로 -1
                     deleteWiseSayingFile(id);
                     System.out.println(id + "번 명언이 삭제되었습니다.");
                 } else {
@@ -75,19 +76,20 @@ class App {
                 String idStr = cmd.substring(6);
                 int id = Integer.parseInt(idStr);
 
-                if (id > 0 && id <= lastId && wiseSayings[id] != null) {
-                    System.out.println("명언(기존) : " + wiseSayings[id].content);
+                if (id > 0 && id <= lastId && wiseSayings.size() >= id && wiseSayings.get(id - 1) != null) {
+                    WiseSaying existingWiseSaying = wiseSayings.get(id - 1);
+                    System.out.println("명언(기존) : " + existingWiseSaying.content);
                     System.out.print("명령) ");
                     String newContent = scanner.nextLine();
 
-                    System.out.println("작가(기존) : " + wiseSayings[id].author);
+                    System.out.println("작가(기존) : " + existingWiseSaying.author);
                     System.out.print("명령) ");
                     String newAuthor = scanner.nextLine();
 
-                    wiseSayings[id].content = newContent;
-                    wiseSayings[id].author = newAuthor;
+                    existingWiseSaying.content = newContent;
+                    existingWiseSaying.author = newAuthor;
 
-                    saveWiseSaying(wiseSayings[id]); // 수정 후 다시 저장
+                    saveWiseSaying(existingWiseSaying); // 수정 후 다시 저장
                 } else {
                     System.out.println(id + "번 명언은 존재하지 않습니다.");
                 }
@@ -131,7 +133,7 @@ class App {
                             }
                         }
 
-                        wiseSayings[i] = new WiseSaying(id, content, author);
+                        wiseSayings.add(new WiseSaying(id, content, author));
                     }
                 } catch (IOException e) {
                     System.out.println("파일 읽기 오류: " + e.getMessage());
@@ -169,13 +171,13 @@ class App {
     private void buildDataFile() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(DATA_FILE))) {
             writer.write("[\n");
-            for (int i = 1; i <= lastId; i++) {
-                WiseSaying wiseSaying = wiseSayings[i];
+            for (int i = 0; i < wiseSayings.size(); i++) {
+                WiseSaying wiseSaying = wiseSayings.get(i);
                 if (wiseSaying != null) {
                     String json = String.format("  {\n    \"id\": %d,\n    \"content\": \"%s\",\n    \"author\": \"%s\"\n  }",
                             wiseSaying.id, wiseSaying.content, wiseSaying.author);
                     writer.write(json);
-                    if (i < lastId) {
+                    if (i < wiseSayings.size() - 1) {
                         writer.write(",\n"); // 마지막 항목이 아닐 경우 쉼표 추가
                     } else {
                         writer.write("\n"); // 마지막 항목인 경우 줄바꿈
@@ -189,5 +191,3 @@ class App {
         }
     }
 }
-
-
