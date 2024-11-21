@@ -1,4 +1,4 @@
-package com.llwiseSaying;
+package com.ll.wiseSaying;
 
 public class WiseSayingRepository {
 }
